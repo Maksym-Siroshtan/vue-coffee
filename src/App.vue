@@ -1,7 +1,9 @@
-<script setup></script>
+<script setup>
+import Header from './components/Header.vue'
+</script>
 
 <template>
-  <h1 class="text-3xl font-bold underline uppercase">
-    Coffee Shop
-  </h1>
+  <div class="max-w-7xl h-screen bg-white rounded-2xl mx-auto my-12">
+    <Header />
+  </div>
 </template>
