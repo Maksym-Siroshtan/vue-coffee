@@ -1,6 +1,7 @@
 <script setup>
-import axios from 'axios'
 import { onMounted, reactive, ref, watch } from 'vue'
+import axios from 'axios'
+import debounce from 'lodash.debounce'
 
 import Header from './components/Header.vue'
 import CardList from './components/CardList.vue'
@@ -16,8 +17,28 @@ const onChangeSelect = (event) => {
   filters.sortBy = event.target.value
 }
 
-const onChangeSearchInput = (event) => {
+const onChangeSearchInput = debounce((event) => {
   filters.searchQuery = event.target.value
+}, 500)
+
+const onClickFavorite = async (item) => {
+  try {
+    if (!item.isFavorite) {
+      const favorite = {
+        item_id: item.id
+      }
+
+      item.isFavorite = true
+      const { data } = await axios.post('https://847f8446d0bdc264.mokky.dev/favorites', favorite)
+      item.favoriteId = data.id
+    } else {
+      item.isFavorite = false
+      await axios.delete(`https://847f8446d0bdc264.mokky.dev/favorites/${item.favoriteId}`)
+      item.favoriteId = null
+    }
+  } catch (err) {
+    console.log(err)
+  }
 }
 
 const fetchItems = async () => {
@@ -33,14 +54,54 @@ const fetchItems = async () => {
     const { data } = await axios.get('https://847f8446d0bdc264.mokky.dev/items', {
       params
     })
-    items.value = data
+    items.value = data.map((item) => ({
+      ...item,
+      isFavorite: false,
+      favoriteId: null,
+      isAdded: false
+    }))
   } catch (err) {
     console.log(err)
   }
 }
 
-onMounted(fetchItems)
-watch(filters, fetchItems)
+const fetchFavorites = async () => {
+  try {
+    const { data: favorites } = await axios.get('https://847f8446d0bdc264.mokky.dev/favorites')
+
+    items.value = items.value.map((item) => {
+      const favorite = favorites.some((favorite) => {
+        if (favorite.item_id === item.id) {
+          item.favoriteId = favorite.id
+          return true
+        } else {
+          return false
+        }
+      })
+
+      if (!favorite) {
+        return item
+      }
+
+      return {
+        ...item,
+        isFavorite: true
+      }
+    })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+onMounted(async () => {
+  await fetchItems()
+  await fetchFavorites()
+})
+
+watch(filters, async () => {
+  await fetchItems()
+  await fetchFavorites()
+})
 </script>
 
 <template>
@@ -69,7 +130,7 @@ watch(filters, fetchItems)
         </div>
       </div>
 
-      <CardList :items="items" />
+      <CardList :items="items" @on-click-favorite="onClickFavorite" />
     </div>
   </div>
 </template>
