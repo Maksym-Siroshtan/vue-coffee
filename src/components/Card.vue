@@ -13,11 +13,11 @@ defineProps({
   >
     <img src="/like-1.svg" alt="Like-1" class="absolute top-6 left-4 cursor-pointer" />
     <img :src="imageUrl" :alt="title" class="w-72 mb-2" />
-    <p class="text-2xl font-medium mb-4">{{ title }}</p>
+    <p class="text-2xl mb-4">{{ title }}</p>
     <div class="flex items-end justify-between">
       <div class="flex flex-col">
         <span class="text-slate-400 uppercase">ціна:</span>
-        <b class="text-xl">{{ price }} грн.</b>
+        <b class="text-2xl">{{ price }} грн.</b>
       </div>
       <img src="/plus.svg" alt="Plus" class="cursor-pointer" />
     </div>

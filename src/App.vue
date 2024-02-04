@@ -4,6 +4,7 @@ import { onMounted, reactive, ref, watch } from 'vue'
 
 import Header from './components/Header.vue'
 import CardList from './components/CardList.vue'
+import Drawer from './components/Drawer.vue'
 
 const items = ref([])
 const filters = reactive({
@@ -43,6 +44,7 @@ watch(filters, fetchItems)
 </script>
 
 <template>
+  <!-- <Drawer /> -->
   <div class="max-w-7xl bg-white rounded-2xl mx-auto my-12">
     <Header />
 
