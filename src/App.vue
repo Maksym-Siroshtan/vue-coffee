@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue'
+import { onMounted, reactive, ref, provide, watch } from 'vue'
 import axios from 'axios'
 import debounce from 'lodash.debounce'
 
@@ -12,6 +12,15 @@ const filters = reactive({
   sortBy: 'title',
   searchQuery: ''
 })
+
+const isDrawerOpen = ref(false)
+
+const openTheDrawer = () => {
+  isDrawerOpen.value = true
+}
+const closeTheDrawer = () => {
+  isDrawerOpen.value = false
+}
 
 const onChangeSelect = (event) => {
   filters.sortBy = event.target.value
@@ -102,12 +111,16 @@ watch(filters, async () => {
   await fetchItems()
   await fetchFavorites()
 })
+
+provide('cart', {
+  closeTheDrawer
+})
 </script>
 
 <template>
-  <!-- <Drawer /> -->
+  <Drawer v-if="isDrawerOpen" />
   <div class="max-w-7xl bg-white rounded-2xl mx-auto my-12">
-    <Header />
+    <Header @open-the-drawer="openTheDrawer" />
 
     <div class="p-12">
       <div class="flex items-center justify-between mb-12">
