@@ -13,6 +13,7 @@ const filters = reactive({
   searchQuery: ''
 })
 
+const cartItems = ref([])
 const isDrawerOpen = ref(false)
 
 const openTheDrawer = () => {
@@ -47,6 +48,24 @@ const onClickFavorite = async (item) => {
     }
   } catch (err) {
     console.log(err)
+  }
+}
+
+const addItemToCart = (item) => {
+  cartItems.value.push(item)
+  item.isAdded = true
+}
+
+const removeItemFromCart = (item) => {
+  cartItems.value.splice(cartItems.value.indexOf(item), 1)
+  item.isAdded = false
+}
+
+const onCLickOnPlus = (item) => {
+  if (!item.isAdded) {
+    addItemToCart(item)
+  } else {
+    removeItemFromCart(item)
   }
 }
 
@@ -113,7 +132,9 @@ watch(filters, async () => {
 })
 
 provide('cart', {
-  closeTheDrawer
+  cartItems,
+  closeTheDrawer,
+  removeItemFromCart
 })
 </script>
 
@@ -143,7 +164,11 @@ provide('cart', {
         </div>
       </div>
 
-      <CardList :items="items" @on-click-favorite="onClickFavorite" />
+      <CardList
+        :items="items"
+        @on-click-favorite="onClickFavorite"
+        @on-click-on-plus="onCLickOnPlus"
+      />
     </div>
   </div>
 </template>

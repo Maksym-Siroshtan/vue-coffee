@@ -10,7 +10,7 @@ const props = defineProps({
   isAdded: Boolean
 })
 
-const emit = defineEmits(['onClickFavorite'])
+const emit = defineEmits(['onClickFavorite', 'onClickOnPlus'])
 
 const cardIsFavorite = computed(() => (props.isFavorite ? '/like-2.svg' : '/like-1.svg'))
 const cardIsAdded = computed(() => (props.isAdded ? '/checked.svg' : '/plus.svg'))
@@ -33,7 +33,12 @@ const cardIsAdded = computed(() => (props.isAdded ? '/checked.svg' : '/plus.svg'
         <span class="text-slate-400 uppercase">ціна:</span>
         <b class="text-2xl">{{ price }} грн.</b>
       </div>
-      <img :src="cardIsAdded" alt="Plus" class="cursor-pointer" />
+      <img
+        @click="emit('onClickOnPlus')"
+        :src="cardIsAdded"
+        alt="Plus"
+        class="cursor-pointer"
+      />
     </div>
   </li>
 </template>
