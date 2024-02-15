@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref, provide, watch } from 'vue'
+import { computed, onMounted, reactive, ref, provide, watch } from 'vue'
 import axios from 'axios'
 import debounce from 'lodash.debounce'
 
@@ -15,6 +15,9 @@ const filters = reactive({
 
 const cartItems = ref([])
 const isDrawerOpen = ref(false)
+
+const totalPrice = computed(() => cartItems.value.reduce((total, item) => total + item.price, 0))
+const vatPrice = computed(() => Math.round((totalPrice.value * 5) / 100))
 
 const openTheDrawer = () => {
   isDrawerOpen.value = true
@@ -134,14 +137,16 @@ watch(filters, async () => {
 provide('cart', {
   cartItems,
   closeTheDrawer,
-  removeItemFromCart
+  removeItemFromCart,
+  totalPrice,
+  vatPrice
 })
 </script>
 
 <template>
   <Drawer v-if="isDrawerOpen" />
   <div class="max-w-7xl bg-white rounded-2xl mx-auto my-12">
-    <Header @open-the-drawer="openTheDrawer" />
+    <Header @open-the-drawer="openTheDrawer" :total-price="totalPrice" />
 
     <div class="p-12">
       <div class="flex items-center justify-between mb-12">
