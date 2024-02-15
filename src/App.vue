@@ -9,7 +9,7 @@ import Drawer from './components/Drawer.vue'
 
 const items = ref([])
 const filters = reactive({
-  sortBy: 'title',
+  sortBy: '',
   searchQuery: ''
 })
 
@@ -124,15 +124,44 @@ const fetchFavorites = async () => {
   }
 }
 
+const checkAddedToCart = () => {
+  items.value = items.value.map((item) => ({
+    ...item,
+    isAdded: cartItems.value.some((cartItem) => cartItem.id === item.id)
+  }))
+}
+
 onMounted(async () => {
+  const localCartItems = localStorage.getItem('cart')
+  cartItems.value = localCartItems ? JSON.parse(localCartItems) : []
+
+  const localSortByFilter = localStorage.getItem('filters')
+  filters.sortBy = localSortByFilter ? JSON.parse(localSortByFilter) : 'title'
+
   await fetchItems()
   await fetchFavorites()
+
+  checkAddedToCart()
 })
 
 watch(filters, async () => {
+  localStorage.setItem('filters', JSON.stringify(filters.sortBy))
+
   await fetchItems()
   await fetchFavorites()
+
+  checkAddedToCart()
 })
+
+watch(
+  cartItems,
+  () => {
+    localStorage.setItem('cart', JSON.stringify(cartItems.value))
+  },
+  {
+    deep: true
+  }
+)
 
 provide('cart', {
   cartItems,
@@ -152,7 +181,11 @@ provide('cart', {
       <div class="flex items-center justify-between mb-12">
         <h2 class="text-3xl font-bold">Наш асортимент кави</h2>
         <div class="flex gap-8">
-          <select @change="onChangeSelect" class="border outline-none px-4 py-2 rounded-lg">
+          <select
+            @change="onChangeSelect"
+            v-model="filters.sortBy"
+            class="border outline-none px-4 py-2 rounded-lg"
+          >
             <option value="title">За назвою</option>
             <option value="price">За ціною (зростання)</option>
             <option value="-price">За ціною (зменшення)</option>
@@ -161,6 +194,7 @@ provide('cart', {
             <img src="/search.svg" alt="Search" class="absolute top-3 left-4" />
             <input
               @input="onChangeSearchInput"
+              v-model="filters.searchQuery"
               type="text"
               placeholder="Пошук..."
               class="border rounded-lg pl-10 pr-4 py-2 outline-none focus:border-slate-500"
