@@ -2,7 +2,6 @@
 import DrawerHead from './DrawerHead.vue'
 import CartItemList from './CartItemList.vue'
 import DrawerFooter from './DrawerFooter.vue'
-
 import InfoBlock from './InfoBlock.vue'
 
 defineProps({
