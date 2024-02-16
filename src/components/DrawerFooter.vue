@@ -1,7 +1,7 @@
 <script setup>
 import { inject } from 'vue'
 
-const { totalPrice, vatPrice } = inject('cart')
+const { createOrder, isOrderCreating, totalPrice, vatPrice } = inject('cart')
 </script>
 
 <template>
@@ -18,7 +18,9 @@ const { totalPrice, vatPrice } = inject('cart')
     </div>
 
     <button
-      class="relative bg-lime-300 text-white w-full rounded-2xl text-lg py-4 hover:bg-lime-500"
+      @click="createOrder"
+      :disabled="isOrderCreating"
+      class="relative bg-lime-300 text-white w-full rounded-2xl text-lg py-4 hover:bg-lime-500 disabled:bg-slate-200"
     >
       Оформити замовлення
       <img src="/arrow-next.svg" alt="Arrow-right" class="absolute top-6 right-6" />

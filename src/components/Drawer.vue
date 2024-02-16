@@ -2,6 +2,13 @@
 import DrawerHead from './DrawerHead.vue'
 import CartItemList from './CartItemList.vue'
 import DrawerFooter from './DrawerFooter.vue'
+
+import InfoBlock from './InfoBlock.vue'
+
+defineProps({
+  cartIsEmpty: Boolean,
+  orderId: Number
+})
 </script>
 
 <template>
@@ -11,12 +18,31 @@ import DrawerFooter from './DrawerFooter.vue'
       <DrawerHead />
     </div>
 
-    <div class="flex-1">
-      <CartItemList />
+    <div v-if="cartIsEmpty || orderId" class="flex flex-col justify-center h-full">
+      <div v-if="cartIsEmpty && !orderId">
+        <InfoBlock
+          title="Кошик порожній"
+          description="Додайте хоча б одну пачку кави, щоб зробити замовлення."
+          image-url="/package-icon.png"
+        />
+      </div>
+      <div v-if="!cartIsEmpty && orderId">
+        <InfoBlock
+          title="Замовлення оформлено!"
+          :description="`Ваше замовлення #${orderId} скоро буде передано кур'єрській доставці.`"
+          image-url="/order-success-icon.png"
+        />
+      </div>
     </div>
 
-    <div class="mt-10">
-      <DrawerFooter />
+    <div v-else class="flex flex-col h-full">
+      <div class="flex-1">
+        <CartItemList />
+      </div>
+
+      <div class="mt-10">
+        <DrawerFooter />
+      </div>
     </div>
   </div>
 </template>

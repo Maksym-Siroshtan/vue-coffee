@@ -15,6 +15,9 @@ const filters = reactive({
 
 const cartItems = ref([])
 const isDrawerOpen = ref(false)
+const isOrderCreating = ref(false)
+const orderId = ref(null)
+const cartIsEmpty = computed(() => cartItems.value.length === 0 && !orderId.value)
 
 const totalPrice = computed(() => cartItems.value.reduce((total, item) => total + item.price, 0))
 const vatPrice = computed(() => Math.round((totalPrice.value * 5) / 100))
@@ -24,6 +27,27 @@ const openTheDrawer = () => {
 }
 const closeTheDrawer = () => {
   isDrawerOpen.value = false
+}
+
+const createOrder = async () => {
+  try {
+    isOrderCreating.value = true
+    const { data } = await axios.post('https://847f8446d0bdc264.mokky.dev/orders', {
+      order: cartItems.value,
+      totalPrice: totalPrice.value
+    })
+
+    cartItems.value = []
+
+    orderId.value = data.id
+  } catch (err) {
+    console.log(err)
+  } finally {
+    isOrderCreating.value = false
+    setTimeout(() => {
+      orderId.value = null
+    }, 5000)
+  }
 }
 
 const onChangeSelect = (event) => {
@@ -163,17 +187,26 @@ watch(
   }
 )
 
+watch(cartItems, () => {
+  items.value = items.value.map((item) => ({
+    ...item,
+    isAdded: false
+  }))
+})
+
 provide('cart', {
   cartItems,
   closeTheDrawer,
   removeItemFromCart,
+  createOrder,
+  isOrderCreating,
   totalPrice,
   vatPrice
 })
 </script>
 
 <template>
-  <Drawer v-if="isDrawerOpen" />
+  <Drawer v-if="isDrawerOpen" :cart-is-empty="cartIsEmpty" :order-id="orderId" />
   <div class="max-w-7xl bg-white rounded-2xl mx-auto my-12">
     <Header @open-the-drawer="openTheDrawer" :total-price="totalPrice" />
 
